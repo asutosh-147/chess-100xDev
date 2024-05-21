@@ -271,8 +271,9 @@ export class Game {
       : this.board.turn() === 'b'
         ? 'WHITE_WINS'
         : 'BLACK_WINS';
-        
-      this.endGame("COMPLETED", result);
+        this.endGame("COMPLETED", result);
+        this.result = result;
+        console.log("game is over");
     }
 
     this.moveCount++;

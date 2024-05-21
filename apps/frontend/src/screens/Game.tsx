@@ -157,6 +157,9 @@ export const Game = () => {
           break;
 
         case GAME_JOINED:
+          if(gameId != message.payload.gameId) {
+            navigate(`/game/${message.payload.gameId}`);
+          }
           setGameMetadata({
             blackPlayer: message.payload.blackPlayer,
             whitePlayer: message.payload.whitePlayer,
