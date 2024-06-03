@@ -12,7 +12,7 @@ import {
   GAME_ADDED,
   GAME_ENDED,
 } from './messages';
-import { Game, isPromoting } from './Game';
+import { Game } from './Game';
 import { db } from './db';
 import { SocketManager, User } from './SocketManager';
 import { Square } from 'chess.js';

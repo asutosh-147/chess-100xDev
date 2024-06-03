@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import MoveSound from '/move.wav';
 import { Button } from '../components/Button';
-import { ChessBoard, isPromoting } from '../components/ChessBoard';
+import { ChessBoard } from '../components/ChessBoard';
 import { useSocket } from '../hooks/useSocket';
 import { Chess, Move } from 'chess.js';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -111,15 +111,7 @@ export const Game = () => {
             return;
           }
           try {
-            if (isPromoting(chess, move.from, move.to)) {
-              chess.move({
-                from: move.from,
-                to: move.to,
-                promotion: 'q',
-              });
-            } else {
-              chess.move({ from: move.from, to: move.to });
-            }
+            chess.move(move)
             setMoves((moves) => [...moves, move]);
             moveAudio.play();
           } catch (error) {
@@ -167,11 +159,7 @@ export const Game = () => {
           setStarted(true);
 
           message.payload.moves.map((x: Move) => {
-            if (isPromoting(chess, x.from, x.to)) {
-              chess.move({ ...x, promotion: 'q' });
-            } else {
-              chess.move(x);
-            }
+            chess.move(x)
           });
           setMoves(message.payload.moves);
           break;
