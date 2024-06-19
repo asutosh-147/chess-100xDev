@@ -239,12 +239,13 @@ export class Game {
 
     if (this.board.isGameOver()) {
       const result = this.board.isDraw()
-        ? 'DRAW'
-        : this.board.turn() === 'b'
-          ? 'WHITE_WINS'
-          : 'BLACK_WINS';
-
-      this.endGame('COMPLETED', result);
+      ? 'DRAW'
+      : this.board.turn() === 'b'
+        ? 'WHITE_WINS'
+        : 'BLACK_WINS';
+        this.endGame("COMPLETED", result);
+        this.result = result;
+        console.log("game is over");
     }
 
     this.moveCount++;
