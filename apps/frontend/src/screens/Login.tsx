@@ -28,14 +28,22 @@ const Login = () => {
             className="flex items-center justify-center chess-board text-white px-4 py-2 rounded-md cursor-pointer hover:bg-gray-600 transition-colors duration-300"
             onClick={google}
           >
-            <img src={Google} alt="Sign in with Google" className="w-6 h-6 mr-2" />
+            <img
+              src={Google}
+              alt="Sign in with Google"
+              className="w-6 h-6 mr-2"
+            />
             Sign in with Google
           </div>
           <div
             className="flex items-center justify-center chess-board text-white px-4 py-2 rounded-md cursor-pointer hover:bg-gray-600 transition-colors duration-300"
             onClick={github}
           >
-            <img src={Github} alt="Sign in with Github" className="w-6 h-6 mr-2" />
+            <img
+              src={Github}
+              alt="Sign in with Github"
+              className="w-6 h-6 mr-2"
+            />
             Sign in with Github
           </div>
         </div>

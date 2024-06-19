@@ -92,7 +92,7 @@ export class GameManager {
         const game = this.games.find((game) => game.gameId === gameId);
         if (game) {
           game.makeMove(user, message.payload.move);
-          if (game.result)  {
+          if (game.result) {
             this.removeGame(game.gameId);
           }
         }
@@ -127,23 +127,25 @@ export class GameManager {
           return;
         }
 
-        if(gameFromDb.status !== GameStatus.IN_PROGRESS) {
-          user.socket.send(JSON.stringify({
-            type: GAME_ENDED,
-            payload: {
-              result: gameFromDb.result,
-              status: gameFromDb.status,
-              moves: gameFromDb.moves,
-              blackPlayer: {
-                id: gameFromDb.blackPlayer.id,
-                name: gameFromDb.blackPlayer.name,
+        if (gameFromDb.status !== GameStatus.IN_PROGRESS) {
+          user.socket.send(
+            JSON.stringify({
+              type: GAME_ENDED,
+              payload: {
+                result: gameFromDb.result,
+                status: gameFromDb.status,
+                moves: gameFromDb.moves,
+                blackPlayer: {
+                  id: gameFromDb.blackPlayer.id,
+                  name: gameFromDb.blackPlayer.name,
+                },
+                whitePlayer: {
+                  id: gameFromDb.whitePlayer.id,
+                  name: gameFromDb.whitePlayer.name,
+                },
               },
-              whitePlayer: {
-                id: gameFromDb.whitePlayer.id,
-                name: gameFromDb.whitePlayer.name,
-              },
-            }
-          }));
+            }),
+          );
           return;
         }
 
@@ -152,9 +154,9 @@ export class GameManager {
             gameFromDb?.whitePlayerId!,
             gameFromDb?.blackPlayerId!,
             gameFromDb.id,
-            gameFromDb.startAt
+            gameFromDb.startAt,
           );
-          game.seedMoves(gameFromDb?.moves || [])
+          game.seedMoves(gameFromDb?.moves || []);
           this.games.push(game);
           availableGame = game;
         }

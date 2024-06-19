@@ -23,7 +23,12 @@ export class Game {
   private startTime = new Date(Date.now());
   private lastMoveTime = new Date(Date.now());
 
-  constructor(player1UserId: string, player2UserId: string | null, gameId?: string, startTime?: Date) {
+  constructor(
+    player1UserId: string,
+    player2UserId: string | null,
+    gameId?: string,
+    startTime?: Date,
+  ) {
     this.player1UserId = player1UserId;
     this.player2UserId = player2UserId;
     this.board = new Chess();
@@ -161,7 +166,7 @@ export class Game {
           promotion: move.promotion ?? null,
           createdAt: moveTimestamp,
           timeTaken: moveTimestamp.getTime() - this.lastMoveTime.getTime(),
-          san: move.san
+          san: move.san,
         },
       }),
       db.game.update({
@@ -186,14 +191,16 @@ export class Game {
     }
 
     if (this.result) {
-      console.error(`User ${user.userId} is making a move post game completion`);
+      console.error(
+        `User ${user.userId} is making a move post game completion`,
+      );
       return;
     }
 
     const moveTimestamp = new Date(Date.now());
 
     try {
-      this.board.move(move)
+      this.board.move(move);
     } catch (e) {
       console.error('Error while making move');
       return;
@@ -201,15 +208,19 @@ export class Game {
 
     // flipped because move has already happened
     if (this.board.turn() === 'b') {
-      this.player1TimeConsumed = this.player1TimeConsumed + (moveTimestamp.getTime() - this.lastMoveTime.getTime());
+      this.player1TimeConsumed =
+        this.player1TimeConsumed +
+        (moveTimestamp.getTime() - this.lastMoveTime.getTime());
     }
 
     if (this.board.turn() === 'w') {
-      this.player2TimeConsumed = this.player2TimeConsumed + (moveTimestamp.getTime() - this.lastMoveTime.getTime());
+      this.player2TimeConsumed =
+        this.player2TimeConsumed +
+        (moveTimestamp.getTime() - this.lastMoveTime.getTime());
     }
 
     await this.addMoveToDb(move, moveTimestamp);
-    this.resetAbandonTimer()
+    this.resetAbandonTimer();
     this.resetMoveTimer();
 
     this.lastMoveTime = moveTimestamp;
@@ -218,18 +229,22 @@ export class Game {
       this.gameId,
       JSON.stringify({
         type: MOVE,
-        payload: { move, player1TimeConsumed: this.player1TimeConsumed, player2TimeConsumed: this.player2TimeConsumed },
+        payload: {
+          move,
+          player1TimeConsumed: this.player1TimeConsumed,
+          player2TimeConsumed: this.player2TimeConsumed,
+        },
       }),
     );
 
     if (this.board.isGameOver()) {
       const result = this.board.isDraw()
-      ? 'DRAW'
-      : this.board.turn() === 'b'
-        ? 'WHITE_WINS'
-        : 'BLACK_WINS';
-        
-      this.endGame("COMPLETED", result);
+        ? 'DRAW'
+        : this.board.turn() === 'b'
+          ? 'WHITE_WINS'
+          : 'BLACK_WINS';
+
+      this.endGame('COMPLETED', result);
     }
 
     this.moveCount++;
@@ -237,14 +252,20 @@ export class Game {
 
   getPlayer1TimeConsumed() {
     if (this.board.turn() === 'w') {
-      return this.player1TimeConsumed + (new Date(Date.now()).getTime() - this.lastMoveTime.getTime());
+      return (
+        this.player1TimeConsumed +
+        (new Date(Date.now()).getTime() - this.lastMoveTime.getTime())
+      );
     }
     return this.player1TimeConsumed;
   }
 
   getPlayer2TimeConsumed() {
     if (this.board.turn() === 'b') {
-      return this.player2TimeConsumed + (new Date(Date.now()).getTime() - this.lastMoveTime.getTime());
+      return (
+        this.player2TimeConsumed +
+        (new Date(Date.now()).getTime() - this.lastMoveTime.getTime())
+      );
     }
     return this.player2TimeConsumed;
   }
@@ -254,19 +275,24 @@ export class Game {
       clearTimeout(this.timer);
     }
     this.timer = setTimeout(() => {
-      this.endGame("ABANDONED", this.board.turn() === 'b' ? 'WHITE_WINS' : 'BLACK_WINS');
+      this.endGame(
+        'ABANDONED',
+        this.board.turn() === 'b' ? 'WHITE_WINS' : 'BLACK_WINS',
+      );
     }, 60 * 1000);
   }
 
   async resetMoveTimer() {
     if (this.moveTimer) {
-      clearTimeout(this.moveTimer)
+      clearTimeout(this.moveTimer);
     }
     const turn = this.board.turn();
-    const timeLeft = GAME_TIME_MS - (turn === 'w' ? this.player1TimeConsumed : this.player2TimeConsumed);
+    const timeLeft =
+      GAME_TIME_MS -
+      (turn === 'w' ? this.player1TimeConsumed : this.player2TimeConsumed);
 
     this.moveTimer = setTimeout(() => {
-      this.endGame("TIME_UP", turn === 'b' ? 'WHITE_WINS' : 'BLACK_WINS');
+      this.endGame('TIME_UP', turn === 'b' ? 'WHITE_WINS' : 'BLACK_WINS');
     }, timeLeft);
   }
 
@@ -287,7 +313,7 @@ export class Game {
         },
         blackPlayer: true,
         whitePlayer: true,
-      }
+      },
     });
 
     SocketManager.getInstance().broadcast(
@@ -315,7 +341,7 @@ export class Game {
   }
 
   clearMoveTimer() {
-    if(this.moveTimer) clearTimeout(this.moveTimer);
+    if (this.moveTimer) clearTimeout(this.moveTimer);
   }
 
   setTimer(timer: NodeJS.Timeout) {
