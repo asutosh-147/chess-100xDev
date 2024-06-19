@@ -40,6 +40,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { movesAtom, userSelectedMoveIndexAtom } from '@repo/store/chessBoard';
 import GameEndModal from '@/components/GameEndModal';
 import { Waitopponent } from '@/components/ui/waitopponent';
+import { ShareGame } from '../components/ShareGame';
 
 const moveAudio = new Audio(MoveSound);
 
@@ -63,7 +64,7 @@ export const Game = () => {
   const [result, setResult] = useState<GameResult | null>(null);
   const [player1TimeConsumed, setPlayer1TimeConsumed] = useState(0);
   const [player2TimeConsumed, setPlayer2TimeConsumed] = useState(0);
-
+  const [gameID,setGameID] = useState("");
   const setMoves = useSetRecoilState(movesAtom);
   const userSelectedMoveIndex = useRecoilValue(userSelectedMoveIndexAtom);
   const userSelectedMoveIndexRef = useRef(userSelectedMoveIndex);
@@ -87,6 +88,7 @@ export const Game = () => {
       switch (message.type) {
         case GAME_ADDED:
           setAdded(true);
+          setGameID((p)=>message.gameId);
           break;
         case INIT_GAME:
           setBoard(chess.board());
@@ -237,28 +239,28 @@ export const Game = () => {
       )}
       <div className="justify-center flex">
         <div className="pt-2 w-full">
-          <div className="flex flex-wrap justify-around content-around w-full">
+          <div className="flex gap-8 w-full">
             <div className="text-white">
               <div className="flex justify-center">
                 <div>
-                  <div className="mb-4">
-                    {started && (
-                      <div className="flex justify-between">
-                        <UserAvatar
-                          name={
-                            user.id === gameMetadata?.whitePlayer?.id
-                              ? gameMetadata?.blackPlayer?.name
-                              : gameMetadata?.whitePlayer?.name ?? ''
-                          }
-                        />
-                        {getTimer(
+                  {started && (
+                    <div className="mb-4">
+                    <div className="flex justify-between">
+                      <UserAvatar
+                        name={
                           user.id === gameMetadata?.whitePlayer?.id
-                            ? player2TimeConsumed
-                            : player1TimeConsumed,
-                        )}
-                      </div>
-                    )}
-                  </div>
+                            ? gameMetadata?.blackPlayer?.name
+                            : gameMetadata?.whitePlayer?.name ?? ''
+                        }
+                      />
+                      {getTimer(
+                        user.id === gameMetadata?.whitePlayer?.id
+                          ? player2TimeConsumed
+                          : player1TimeConsumed,
+                      )}
+                    </div>
+                    </div>
+                  )}
                   <div>
                     <div className={`w-full flex justify-center text-white`}>
                       <ChessBoard
@@ -293,12 +295,13 @@ export const Game = () => {
                 </div>
               </div>
             </div>
-            <div className="rounded-md bg-brown-500 overflow-auto h-[90vh] mt-10">
+            <div className="rounded-md pt-2 bg-bgAuxiliary3 flex-1 overflow-auto h-[95vh] overflow-y-scroll no-scrollbar">
               {!started && (
                 <div className="pt-8 flex justify-center w-full">
                   {added ? (
-                    <div className="text-white">
-                      <Waitopponent />
+                    <div className='flex flex-col items-center space-y-4 justify-center'>
+                      <div className="text-white"><Waitopponent/></div>
+                      <ShareGame gameId={gameID}/>
                     </div>
                   ) : (
                     gameId === 'random' && (

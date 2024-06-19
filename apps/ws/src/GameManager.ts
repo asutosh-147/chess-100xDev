@@ -14,7 +14,7 @@ import {
 } from './messages';
 import { Game } from './Game';
 import { db } from './db';
-import { SocketManager, User } from './SocketManager';
+import { socketManager, User } from './SocketManager';
 import { Square } from 'chess.js';
 import { GameStatus } from '@prisma/client';
 
@@ -41,7 +41,7 @@ export class GameManager {
       return;
     }
     this.users = this.users.filter((user) => user.socket !== socket);
-    SocketManager.getInstance().removeUser(user);
+    socketManager.removeUser(user);
   }
 
   removeGame(gameId: string) {
@@ -68,7 +68,7 @@ export class GameManager {
             return;
           }
           if (user.userId === game.player1UserId) {
-            SocketManager.getInstance().broadcast(
+            socketManager.broadcast(
               game.gameId,
               JSON.stringify({
                 type: GAME_ALERT,
@@ -79,18 +79,19 @@ export class GameManager {
             );
             return;
           }
-          SocketManager.getInstance().addUser(user, game.gameId);
+          socketManager.addUser(user, game.gameId);
           await game?.updateSecondPlayer(user.userId);
           this.pendingGameId = null;
         } else {
           const game = new Game(user.userId, null);
           this.games.push(game);
           this.pendingGameId = game.gameId;
-          SocketManager.getInstance().addUser(user, game.gameId);
-          SocketManager.getInstance().broadcast(
+          socketManager.addUser(user, game.gameId);
+          socketManager.broadcast(
             game.gameId,
             JSON.stringify({
               type: GAME_ADDED,
+              gameId:game.gameId,
             }),
           );
         }
@@ -126,11 +127,24 @@ export class GameManager {
           orderBy: {
             moveNumber: 'asc',
           },
-        },
-        blackPlayer: true,
-        whitePlayer: true,
-      },
-    });
+        });
+
+        // There is a game created but no second player available
+        
+        if (availableGame && !availableGame.player2UserId) {
+          socketManager.addUser(user, availableGame.gameId);
+          await availableGame.updateSecondPlayer(user.userId);
+          return;
+        }
+
+        if (!gameFromDb) {
+          user.socket.send(
+            JSON.stringify({
+              type: GAME_NOT_FOUND,
+            }),
+          );
+          return;
+        }
 
     if (!gameFromDb) {
       user.socket.send(
@@ -177,7 +191,6 @@ export class GameManager {
 
     console.log(availableGame.getPlayer1TimeConsumed());
     console.log(availableGame.getPlayer2TimeConsumed());
-
     user.socket.send(
       JSON.stringify({
         type: GAME_JOINED,

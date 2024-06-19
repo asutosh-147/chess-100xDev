@@ -2,7 +2,7 @@ import { Chess, Move, Square } from 'chess.js';
 import { GAME_ENDED, INIT_GAME, MOVE } from './messages';
 import { db } from './db';
 import { randomUUID } from 'crypto';
-import { SocketManager, User } from './SocketManager';
+import { socketManager, User } from './SocketManager';
 
 type GAME_STATUS = 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED' | 'TIME_UP';
 type GAME_RESULT = 'WHITE_WINS' | 'BLACK_WINS' | 'DRAW';
@@ -102,7 +102,7 @@ export class Game {
       return;
     }
 
-    SocketManager.getInstance().broadcast(
+    socketManager.broadcast(
       this.gameId,
       JSON.stringify({
         type: INIT_GAME,
@@ -225,7 +225,7 @@ export class Game {
 
     this.lastMoveTime = moveTimestamp;
 
-    SocketManager.getInstance().broadcast(
+    socketManager.broadcast(
       this.gameId,
       JSON.stringify({
         type: MOVE,
@@ -317,7 +317,7 @@ export class Game {
       },
     });
 
-    SocketManager.getInstance().broadcast(
+    socketManager.broadcast(
       this.gameId,
       JSON.stringify({
         type: GAME_ENDED,

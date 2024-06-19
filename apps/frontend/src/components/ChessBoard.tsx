@@ -45,38 +45,35 @@ export function isPromoting(chess: Chess, from: Square, to: Square) {
     .includes(to);
 }
 
-export const ChessBoard = memo(
-  ({
-    gameId,
-    started,
-    myColor,
-    chess,
-    board,
-    socket,
-    setBoard,
-  }: {
-    myColor: Color;
-    gameId: string;
-    started: boolean;
-    chess: Chess;
-    setBoard: React.Dispatch<
-      React.SetStateAction<
-        ({
-          square: Square;
-          type: PieceSymbol;
-          color: Color;
-        } | null)[][]
-      >
-    >;
-    board: ({
-      square: Square;
-      type: PieceSymbol;
-      color: Color;
-    } | null)[][];
-    socket: WebSocket;
-  }) => {
-    console.log('chessboard reloaded');
-    const { height, width } = useWindowSize();
+export const ChessBoard = memo(({
+  gameId,
+  started,
+  myColor,
+  chess,
+  board,
+  socket,
+  setBoard,
+}: {
+  myColor: Color;
+  gameId: string;
+  started: boolean;
+  chess: Chess;
+  setBoard: React.Dispatch<
+    React.SetStateAction<
+      ({
+        square: Square;
+        type: PieceSymbol;
+        color: Color;
+      } | null)[][]
+    >
+  >;
+  board: ({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+  } | null)[][];
+  socket: WebSocket;
+}) => {
 
     const [isFlipped, setIsFlipped] = useRecoilState(isBoardFlippedAtom);
     const [userSelectedMoveIndex, setUserSelectedMoveIndex] = useRecoilState(
@@ -99,16 +96,12 @@ export const ChessBoard = memo(
       null,
     );
 
-    const labels = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-    const OFFSET = 100;
-    const boxSize =
-      width > height
-        ? Math.floor((height - OFFSET) / 8)
-        : Math.floor((width - OFFSET) / 8);
-    const [gameOver, setGameOver] = useState(false);
-    const moveAudio = new Audio(MoveSound);
-    const captureAudio = new Audio(CaptureSound);
+  const labels = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const boxSize = 80;
+  const [gameOver, setGameOver] = useState(false);
+  const moveAudio = new Audio(MoveSound);
+  const captureAudio = new Audio(CaptureSound);
 
     const handleMouseDown = (
       e: MouseEvent<HTMLDivElement>,
